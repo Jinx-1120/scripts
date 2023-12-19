@@ -173,10 +173,19 @@ ${proxyNames}
   return configTemplate;
 }
 
+const args: string[] = Deno.args;
+
+const url = args[args.findIndex((i) => i === "--url") + 1];
+if (!args.includes("--url")) {
+  throw new Error("url is required");
+}
 (async function main(v2raySubscriptionUrl: string) {
   const v2rayNodes = await getV2RayNodes(v2raySubscriptionUrl);
   const clashProxies = getClashProxies(v2rayNodes);
 
+  if (clashProxies.length === 0) {
+    throw new Error("No v2rayNodes information found");
+  }
   const clashConfig = generateClashConfig(clashProxies);
 
   // 将生成的Clash配置文件保存到本地
@@ -186,4 +195,4 @@ ${proxyNames}
   );
 
   console.log("Clash配置文件已生成: v2ray_to_clash.yaml");
-})("http://xxxx.xxxx.xxx/v2ray.txt");
+})(url);
